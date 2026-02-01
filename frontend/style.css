@@ -996,3 +996,110 @@ body {
   padding: 24px;
   font-style: italic;
 }
+
+/* Suggestion Chips */
+.suggestion-chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.suggestion-chip {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+}
+
+.suggestion-chip:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-primary);
+  color: white;
+}
+
+/* ========================================
+   Lucide Icons Styling
+   ======================================== */
+
+.file-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.dataset-item.active .file-icon {
+  color: var(--accent-primary);
+}
+
+.avatar-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+}
+
+.settings-btn:hover .settings-icon {
+  color: var(--text-primary);
+}
+
+.welcome-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 16px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.15);
+}
+
+.welcome-icon-lucide {
+  width: 40px;
+  height: 40px;
+  color: var(--accent-primary);
+}
+
+.upload-icon-lucide {
+  width: 32px;
+  height: 32px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.input-icon-lucide {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+}
+
+.mic-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--text-secondary);
+}
+
+.send-icon {
+  width: 20px;
+  height: 20px;
+  color: currentColor;
+}

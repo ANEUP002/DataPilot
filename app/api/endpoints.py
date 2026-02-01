@@ -1,10 +1,13 @@
 """API endpoints for DataPilot."""
 import shutil
 import uuid
+import json
 from pathlib import Path
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from sqlmodel import Session, select
 
-from app.api.models import UploadResponse, AskRequest, AskResponse
+from app.api.models import UploadResponse, AskRequest, AskResponse, Dataset, QueryHistory
+from app.core.database import get_session
 from app.services.ingestion import ingest_csv
 from app.services.query_service import validate_table_exists, get_table_schema, execute_user_query
 from app.services.ai_service import generate_sql, generate_answer
@@ -16,11 +19,12 @@ UPLOAD_DIR = Path(__file__).parent.parent.parent / "data" / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 @router.post("/upload", response_model=UploadResponse)
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(
+    file: UploadFile = File(...),
+    session: Session = Depends(get_session)
+):
     """
-    Upload a CSV file and ingest it into the database.
-    
-    Returns dataset_id and schema information.
+    Upload a CSV file, ingest it into DuckDB, and save record to SQLite.
     """
     # Validate file type
     if not file.filename.endswith(".csv"):
@@ -39,11 +43,24 @@ async def upload_file(file: UploadFile = File(...)):
     # Ingest into DuckDB
     try:
         result = ingest_csv(file_path, table_name=f"dataset_{file_id}")
+        
+        # Save to SQLite
+        dataset = Dataset(
+            id=result["dataset_id"],
+            filename=file.filename,
+            table_name_duckdb=result["table_name"],
+            schema_info=json.dumps(result["schema"]),
+            row_count=result["row_count"]
+        )
+        session.add(dataset)
+        session.commit()
+        session.refresh(dataset)
+        
         return UploadResponse(
-            dataset_id=result["dataset_id"],
-            table_name=result["table_name"],
+            dataset_id=dataset.id,
+            table_name=dataset.table_name_duckdb,
             schema=result["schema"],
-            row_count=result["row_count"],
+            row_count=dataset.row_count,
             message=f"Successfully uploaded {file.filename}"
         )
     except Exception as e:
@@ -53,11 +70,12 @@ async def upload_file(file: UploadFile = File(...)):
 
 
 @router.post("/ask", response_model=AskResponse)
-async def ask_question(request: AskRequest):
+async def ask_question(
+    request: AskRequest,
+    session: Session = Depends(get_session)
+):
     """
     Ask a natural language question about a dataset.
-    
-    Returns generated SQL, query results, and a natural language answer.
     """
     # Validate dataset exists
     if not validate_table_exists(request.dataset_id):
@@ -69,7 +87,7 @@ async def ask_question(request: AskRequest):
     # Get schema for context
     schema = get_table_schema(request.dataset_id)
     
-    # Generate SQL from question (AI service - stub for now)
+    # Generate SQL from question (AI service)
     sql_query = generate_sql(
         question=request.question,
         schema=schema,
@@ -85,8 +103,22 @@ async def ask_question(request: AskRequest):
             detail=f"Query execution failed: {str(e)}"
         )
     
-    # Generate answer (AI service - stub for now)
+    # Generate answer (AI service)
     answer = generate_answer(request.question, data)
+    
+    # Save query history
+    try:
+        query_history = QueryHistory(
+            dataset_id=request.dataset_id,
+            question=request.question,
+            sql_query=sql_query,
+            answer=answer
+        )
+        session.add(query_history)
+        session.commit()
+    except Exception as e:
+        # Don't fail the request if history save fails, just log it
+        print(f"Failed to save query history: {e}")
     
     return AskResponse(
         answer=answer,
@@ -94,3 +126,24 @@ async def ask_question(request: AskRequest):
         data=data,
         message="Query executed successfully"
     )
+
+@router.get("/datasets")
+async def get_datasets(session: Session = Depends(get_session)):
+    """List all uploaded datasets."""
+    datasets = session.exec(select(Dataset)).all()
+    # Parse schema_info JSON back to list/dict for frontend if needed, 
+    # but for now returning as is or we can use a Pydantic model to handle it.
+    # The frontend expects 'schema' in the dataset object for some operations,
+    # but primarily just needs id, name, etc.
+    # Let's clean up the response to match what frontend expects.
+    response = []
+    for d in datasets:
+        response.append({
+            "id": d.id,
+            "name": d.filename,
+            "table_name": d.table_name_duckdb,
+            "schema": json.loads(d.schema_info),
+            "row_count": d.row_count,
+            "created_at": d.created_at
+        })
+    return response

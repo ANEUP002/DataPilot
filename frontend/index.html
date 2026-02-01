@@ -13,6 +13,7 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="/style.css">
 </head>
 
@@ -46,7 +47,7 @@
         <h3 class="section-title">Datasets</h3>
         <ul class="dataset-list" id="datasetList">
           <li class="dataset-item placeholder">
-            <span class="file-icon">📄</span>
+            <i data-lucide="file-spreadsheet" class="file-icon"></i>
             Upload a CSV to start
           </li>
         </ul>
@@ -56,7 +57,7 @@
         <h3 class="section-title">Recent Queries</h3>
         <ul class="query-list" id="queryList">
           <li class="query-item placeholder">
-            <span class="file-icon">🕐</span>
+            <i data-lucide="clock" class="file-icon"></i>
             No queries yet
           </li>
         </ul>
@@ -65,13 +66,13 @@
       <div class="sidebar-footer">
         <div class="user-info">
           <div class="avatar">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=DataPilot" alt="User">
+            <i data-lucide="user" class="avatar-icon"></i>
           </div>
           <div class="user-details">
             <span class="user-name">Guest User</span>
             <span class="user-plan">FREE PLAN</span>
           </div>
-          <button class="settings-btn">⚙️</button>
+          <button class="settings-btn"><i data-lucide="settings" class="settings-icon"></i></button>
         </div>
       </div>
     </aside>
@@ -110,13 +111,15 @@
       <!-- Chat Area -->
       <div class="chat-area" id="chatArea">
         <div class="welcome-state" id="welcomeState">
-          <div class="welcome-icon">📊</div>
+          <div class="welcome-icon-container">
+            <i data-lucide="bar-chart-3" class="welcome-icon-lucide"></i>
+          </div>
           <h2>Welcome to DataPilot</h2>
           <p>Upload a CSV file to start analyzing your data with natural language queries</p>
           <label class="upload-zone" id="uploadZone">
             <input type="file" id="fileInput" accept=".csv" hidden>
             <div class="upload-content">
-              <span class="upload-icon">📁</span>
+              <i data-lucide="upload-cloud" class="upload-icon-lucide"></i>
               <span>Drop CSV here or click to upload</span>
             </div>
           </label>
@@ -128,14 +131,12 @@
         <div class="input-wrapper">
           <div class="input-glow"></div>
           <div class="input-container">
-            <span class="input-icon">📎</span>
+            <span class="input-icon"><i data-lucide="paperclip" class="input-icon-lucide"></i></span>
             <input type="text" class="question-input" id="questionInput"
-              placeholder="Ask DataPilot about your dataset..." disabled>
-            <button class="voice-btn" title="Voice input">🎤</button>
-            <button class="send-btn" id="sendBtn" disabled title="Send">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <path d="M12 19V5M5 12l7-7 7 7" />
-              </svg>
+              placeholder="Ask DataPilot about your dataset...">
+            <button class="voice-btn" title="Voice input"><i data-lucide="mic" class="mic-icon"></i></button>
+            <button class="send-btn" id="sendBtn" title="Send">
+              <i data-lucide="arrow-up" class="send-icon"></i>
             </button>
           </div>
         </div>

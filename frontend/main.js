@@ -55,8 +55,26 @@ const newAnalysisBtn = document.getElementById('newAnalysisBtn');
 document.addEventListener('DOMContentLoaded', () => {
   generateStars();
   setupEventListeners();
-  loadFromLocalStorage();
+  fetchDatasets();
+  lucide.createIcons();
 });
+
+// Helper to get helper SVG string
+function getIcon(name, size = 16, className = '') {
+  // Use lucide API if available
+  if (window.lucide && window.lucide.icons[name]) {
+    // Convert kebab-case (e.g. file-spreadsheet) to PascalCase (FileSpreadsheet) for lookup if needed,
+    // but icons[name] usually expects PascalCase? 
+    // Actually looking at lucide docs, icons is an object with PascalCase keys.
+    // Let's make a quick mapper or try to convert.
+    const pascalName = name.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('');
+    const iconNode = window.lucide.icons[pascalName];
+    if (iconNode) {
+      return iconNode.toSvg({ width: size, height: size, class: className });
+    }
+  }
+  return '';
+}
 
 function setupEventListeners() {
   // File upload
@@ -157,7 +175,12 @@ async function uploadFile(file) {
 // Ask Question Handler
 async function handleAsk() {
   const question = questionInput.value.trim();
-  if (!question || !currentDataset) return;
+  if (!question) return;
+
+  if (!currentDataset) {
+    showError("Please select or upload a dataset first!");
+    return;
+  }
 
   // Clear input
   questionInput.value = '';
@@ -208,17 +231,18 @@ function updateDatasetList() {
   if (datasets.length === 0) {
     datasetList.innerHTML = `
       <li class="dataset-item placeholder">
-        <span class="file-icon">📄</span>
+        <i data-lucide="file-spreadsheet" class="file-icon"></i>
         Upload a CSV to start
       </li>
     `;
+    lucide.createIcons();
     return;
   }
 
   datasetList.innerHTML = datasets.map((ds, index) => `
     <li class="dataset-item ${ds.id === currentDataset?.id ? 'active' : ''}" 
         onclick="selectDataset(${index})">
-      <span class="file-icon">📊</span>
+      <span class="file-icon">${getIcon('file-spreadsheet', 16)}</span>
       ${ds.name}
     </li>
   `).join('');
@@ -232,6 +256,12 @@ window.selectDataset = function (index) {
   hideWelcome();
 };
 
+function enableInput() {
+  questionInput.disabled = false;
+  sendBtn.disabled = false;
+  questionInput.placeholder = 'Ask DataPilot about your dataset...';
+}
+
 function addRecentQuery(question) {
   const truncated = question.length > 30 ? question.substring(0, 30) + '...' : question;
   recentQueries.unshift(truncated);
@@ -242,19 +272,14 @@ function addRecentQuery(question) {
 
 function updateQueryList() {
   if (recentQueries.length === 0) {
-    queryList.innerHTML = '<li class="query-item placeholder">No queries yet</li>';
+    queryList.innerHTML = `<li class="query-item placeholder"><i data-lucide="clock" class="file-icon"></i>No queries yet</li>`;
+    lucide.createIcons();
     return;
   }
 
   queryList.innerHTML = recentQueries.map(q => `
     <li class="query-item">${q}</li>
   `).join('');
-}
-
-function enableInput() {
-  questionInput.disabled = false;
-  sendBtn.disabled = false;
-  questionInput.placeholder = 'Ask DataPilot about your dataset...';
 }
 
 function hideWelcome() {
@@ -264,24 +289,29 @@ function hideWelcome() {
 function resetToWelcome() {
   currentDataset = null;
   currentDatasetEl.textContent = 'No dataset selected';
-  questionInput.disabled = true;
-  sendBtn.disabled = true;
+  // Input remains enabled to allow typing
   chatArea.innerHTML = `
     <div class="welcome-state" id="welcomeState">
-      <div class="welcome-icon">📊</div>
+      <div class="welcome-icon-container">
+         <i data-lucide="bar-chart-2" size="48" color="#10b981"></i>
+      </div>
       <h2>Welcome to DataPilot</h2>
-      <p>Upload a CSV file to start analyzing your data with natural language</p>
+      <p>Upload a CSV file to start analyzing your data with natural language queries</p>
       <label class="upload-zone" id="uploadZone">
         <input type="file" id="fileInput" accept=".csv" hidden>
         <div class="upload-content">
-          <span class="upload-icon">📁</span>
+          <i data-lucide="upload-cloud" size="32" class="upload-icon-lucide"></i>
           <span>Drop CSV here or click to upload</span>
         </div>
       </label>
     </div>
   `;
+  // Re-init generic icons
+  lucide.createIcons();
+
   // Re-attach listeners
   const newFileInput = document.getElementById('fileInput');
+
   const newUploadZone = document.getElementById('uploadZone');
   newFileInput.addEventListener('change', handleFileUpload);
   newUploadZone.addEventListener('dragover', handleDragOver);
@@ -291,10 +321,11 @@ function resetToWelcome() {
 
 // Message Rendering
 function addUserMessage(question) {
+  const userIcon = getIcon('user', 20);
   const html = `
     <div class="message message-user">
-      <div class="message-avatar">👤</div>
-      <div class="message-content">${escapeHtml(question)}</div>
+      <div class="message-avatar">${userIcon}</div>
+      <div class="message-content"><p>${escapeHtml(question)}</p></div>
     </div>
   `;
   chatArea.insertAdjacentHTML('beforeend', html);
@@ -303,9 +334,10 @@ function addUserMessage(question) {
 
 function addLoadingMessage() {
   const id = 'loading-' + Date.now();
+  const botIcon = getIcon('bot', 20);
   const html = `
     <div class="message message-assistant" id="${id}">
-      <div class="message-avatar">🤖</div>
+      <div class="message-avatar">${botIcon}</div>
       <div class="message-content">
         <div class="loading-dots">
           <span></span>
@@ -328,10 +360,11 @@ function removeMessage(id) {
 function addAssistantMessage(data) {
   const tableHtml = renderResultsTable(data.data);
   const sqlHtml = highlightSQL(data.sql_query);
+  const botIcon = getIcon('bot', 20);
 
   const html = `
     <div class="message message-assistant">
-      <div class="message-avatar">🤖</div>
+      <div class="message-avatar">${botIcon}</div>
       <div class="message-content">
         <p class="assistant-intro">
           I've analyzed the <span class="dataset-link">${currentDataset.name}</span> dataset. 
@@ -427,12 +460,14 @@ function showUploadSuccess(dataset) {
     `<li><strong>${col.column}</strong>: ${col.type}</li>`
   ).join('');
 
+  const botIcon = getIcon('bot', 20);
+
   const html = `
     <div class="message message-assistant">
-      <div class="message-avatar">🤖</div>
+      <div class="message-avatar">${botIcon}</div>
       <div class="message-content">
         <p class="assistant-intro">
-          ✅ Successfully uploaded <span class="dataset-link">${dataset.name}</span>!
+          Successfully uploaded <span class="dataset-link">${dataset.name}</span>!
         </p>
         <div class="sql-block">
           <div class="sql-header">
@@ -446,12 +481,14 @@ Columns:
 ${dataset.schema.map(c => `  • ${c.column} (${c.type})`).join('\n')}
           </div>
         </div>
-        <p style="color: var(--text-secondary); font-size: 14px;">
-          Now you can ask questions about your data! Try something like:
-          <br>• "Show me the first 5 rows"
-          <br>• "What's the average of [column]?"
-          <br>• "Count rows by [column]"
+        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">
+          Now you can ask questions about your data! Try these examples:
         </p>
+        <div class="suggestion-chip-container">
+          <button class="suggestion-chip" onclick="useSuggestion('Show me the first 5 rows')">Show me the first 5 rows</button>
+          <button class="suggestion-chip" onclick="useSuggestion('Count rows by ${dataset.schema[0]?.column || 'column'}')">Count rows by ${dataset.schema[0]?.column || 'column'}</button>
+          <button class="suggestion-chip" onclick="useSuggestion('What is the average of [column]?')">What is the average of [column]?</button>
+        </div>
       </div>
     </div>
   `;
@@ -475,9 +512,10 @@ function showLoading(message) {
 }
 
 function showError(message) {
+  const alertIcon = getIcon('triangle-alert', 20);
   const html = `
     <div class="message message-assistant">
-      <div class="message-avatar">⚠️</div>
+      <div class="message-avatar" style="color: var(--accent-red); border-color: var(--accent-red);">${alertIcon}</div>
       <div class="message-content" style="color: var(--accent-red);">
         ${message}
       </div>
@@ -506,19 +544,44 @@ window.copySQL = function (sql) {
   navigator.clipboard.writeText(sql);
 };
 
-// Local Storage
-function saveToLocalStorage() {
-  localStorage.setItem('datapilot_datasets', JSON.stringify(datasets));
-  localStorage.setItem('datapilot_queries', JSON.stringify(recentQueries));
+window.useSuggestion = function (text) {
+  const input = document.getElementById('questionInput');
+  input.value = text;
+  input.focus();
+  input.disabled = false; // Ensure it's enabled
+  document.getElementById('sendBtn').disabled = false;
+};
+
+// Fetch Datasets from API
+async function fetchDatasets() {
+  try {
+    const response = await fetch(`${API_BASE}/datasets`);
+    if (response.ok) {
+      datasets = await response.json();
+      updateDatasetList();
+
+      // Auto-select the most recent dataset if available
+      if (datasets.length > 0) {
+        // Datasets are expected to be in order, or we can sort/find the latest.
+        // Assuming latest is at the end or we just pick the last one.
+        // Let's pick the last one (latest uploaded).
+        selectDataset(datasets.length - 1);
+      }
+
+      // Restore recent queries from local storage
+      const storedQueries = localStorage.getItem('datapilot_queries');
+      if (storedQueries) {
+        recentQueries = JSON.parse(storedQueries);
+        updateQueryList();
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch datasets:', e);
+  }
 }
 
-function loadFromLocalStorage() {
-  try {
-    datasets = JSON.parse(localStorage.getItem('datapilot_datasets')) || [];
-    recentQueries = JSON.parse(localStorage.getItem('datapilot_queries')) || [];
-    updateDatasetList();
-    updateQueryList();
-  } catch (e) {
-    console.error('Failed to load from localStorage:', e);
-  }
+// Local Storage for Queries only
+function saveToLocalStorage() {
+  // localStorage.setItem('datapilot_datasets', JSON.stringify(datasets)); // No longer syncing datasets
+  localStorage.setItem('datapilot_queries', JSON.stringify(recentQueries));
 }

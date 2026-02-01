@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import router
+from app.core.database import create_db_and_tables
 
 app = FastAPI(title="DataPilot Backend", version="0.1.0")
 
@@ -12,6 +13,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
 
 # Include API routes
 app.include_router(router, prefix="/api", tags=["data"])
