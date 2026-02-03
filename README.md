@@ -136,11 +136,11 @@ source venv/bin/activate
 
 Install dependencies
 
-pip install -r requirements.txt
+• pip install -r requirements.txt
 
 Start API
 
-uvicorn app.main:app --reload
+• uvicorn app.main:app --reload
 
 Backend running at:
 http://127.0.0.1:8000
@@ -153,9 +153,9 @@ http://127.0.0.1:8000/docs
 
 Open new terminal
 
-cd frontend
-npm install
-npm run dev
+• cd frontend
+• npm install
+• npm run dev
 
 Frontend running at:
 http://localhost:5173
