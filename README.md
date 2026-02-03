@@ -88,24 +88,8 @@ The focus was keeping everything local, simple, and fast.
 
 ---
 
-## Run locally
 
-### Backend
-
-```bash
-python -m venv venv
-venv\Scripts\activate      # Windows
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-
-Frontend
-cd frontend
-npm install
-npm run dev
-
-What Wer wanted to practice
-
-This project was mainly about learning:
+### This project was mainly about learning:
 
 designing APIs
 
@@ -129,3 +113,19 @@ designed for small/medium datasets
 not meant for production scale
 
 SELECT queries only for safety
+
+## Run locally
+
+### Backend
+
+```bash
+python -m venv venv
+venv\Scripts\activate      # Windows
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+
+Frontend
+cd frontend
+npm install
+npm run dev
+----
