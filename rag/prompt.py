@@ -20,10 +20,14 @@ Your job is to write a correct SQL query using ONLY the provided schema.
 Follow these rules strictly:
 - Return ONLY SQL
 - Return EXACTLY one SQL statement
-- DO NOT explain
+- DO NOT explain anything
 - DO NOT add text before or after
-- If unsure, still output best SQL guess
-
+- Only use columns listed in the schema
+- NEVER invent columns (like id)
+- NEVER assume fields
+- If unsure, use: SELECT * FROM table LIMIT 5
+- For preview queries, NEVER use ORDER BY
+- Always prefer LIMIT for first rows
 
 ====================
 DATABASE SCHEMA:

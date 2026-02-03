@@ -110,6 +110,7 @@
 
       <!-- Chat Area -->
       <div class="chat-area" id="chatArea">
+        <canvas id="resultChart" style="max-height:400px;margin:20px 0;"></canvas>
         <div class="welcome-state" id="welcomeState">
           <div class="welcome-icon-container">
             <i data-lucide="bar-chart-3" class="welcome-icon-lucide"></i>
@@ -117,7 +118,7 @@
           <h2>Welcome to DataPilot</h2>
           <p>Upload a CSV file to start analyzing your data with natural language queries</p>
           <label class="upload-zone" id="uploadZone">
-            <input type="file" id="fileInput" accept=".csv" hidden>
+            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden>
             <div class="upload-content">
               <i data-lucide="upload-cloud" class="upload-icon-lucide"></i>
               <span>Drop CSV here or click to upload</span>

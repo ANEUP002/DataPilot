@@ -37,6 +37,8 @@ function generateStars() {
 let currentDataset = null;
 let datasets = [];
 let recentQueries = [];
+let chartInstance = null;
+
 
 // DOM Elements
 const fileInput = document.getElementById('fileInput');
@@ -111,7 +113,7 @@ function handleDrop(e) {
   e.preventDefault();
   uploadZone.classList.remove('dragover');
   const files = e.dataTransfer.files;
-  if (files.length > 0 && files[0].name.endsWith('.csv')) {
+  if (files.length > 0 ) {
     uploadFile(files[0]);
   }
 }
@@ -400,6 +402,7 @@ function addAssistantMessage(data) {
     </div>
   `;
   chatArea.insertAdjacentHTML('beforeend', html);
+  renderAutoChart(data.data);
   scrollToBottom();
 }
 
@@ -642,3 +645,53 @@ window.deleteQuery = function (index) {
   saveToLocalStorage();
   updateQueryList();
 };
+function renderAutoChart(data) {
+  if (!data || data.length === 0) return;
+
+  // find numeric + label columns
+  const keys = Object.keys(data[0]);
+
+  const numericKey = keys.find(k => typeof data[0][k] === "number");
+  const labelKey = keys.find(k => k !== numericKey);
+
+  if (!numericKey || !labelKey) return;
+
+  const labels = data.map(r => r[labelKey]);
+  const values = data.map(r => r[numericKey]);
+
+  const canvasId = "chart-" + Date.now();
+
+  const chartHtml = `
+    <div style="margin-top:20px">
+      <canvas id="${canvasId}" height="120"></canvas>
+    </div>
+  `;
+
+  chatArea.insertAdjacentHTML("beforeend", chartHtml);
+
+  const ctx = document.getElementById(canvasId);
+
+  // auto choose chart type
+  let type = "bar";
+  if (labels.length <= 6) type = "pie";
+  if (labelKey.toLowerCase().includes("year")) type = "line";
+
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(ctx, {
+    type,
+    data: {
+      labels,
+      datasets: [{
+        label: numericKey,
+        data: values
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: type !== "bar" }
+      }
+    }
+  });
+}

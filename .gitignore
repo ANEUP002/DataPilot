@@ -1,28 +1,39 @@
+# ========================
 # Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.env
-.venv
-env/
+# ========================
 venv/
-ENV/
-env.bak/
-venv.bak/
+__pycache__/
+*.pyc
 
-# Distribution / packaging
-dist/
-build/
-*.egg-info/
-
-# DuckDB / Data
-data/
+# ========================
+# DuckDB / data
+# ========================
 *.db
 *.duckdb
-*.csv
-!data/.gitkeep
+data/uploads/
 
-# IDE
-.idea/
-.vscode/
+# ========================
+# RAG / model weights
+# ========================
+*.pt
+*.bin
+*.safetensors
+*.faiss
+
+# ========================
+# Frontend
+# ========================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Env files
+# ========================
+.env
