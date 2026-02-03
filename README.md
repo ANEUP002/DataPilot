@@ -1,32 +1,42 @@
-🚀 DataPilot
+# 🚀 DataPilot
 
 DataPilot is a lightweight, local-first analytics tool that lets you query spreadsheets using plain English.
 
-Upload a CSV or Excel file → ask a question → AI generates SQL → DuckDB executes it → results are returned as tables and charts.
-
-It combines LLMs + vector search + databases + APIs + frontend into one complete end-to-end system.
+Upload a CSV or Excel file → ask a question → AI generates SQL → DuckDB executes it → results are shown as tables and charts.
 
 Think:
 
-ChatGPT + SQL + Power BI — but fully local and private.
+ChatGPT + SQL + DuckDB + charts  
+All running locally. No cloud. No external APIs. No heavy BI tools.
 
-✨ Demo Queries
+---
 
-Try asking:
+## ✨ What you can ask
 
-total revenue by year
+Examples:
 
-sum of sales by region
+- total revenue by year
+- sum of sales by region
+- average price per product
+- top 5 rows
+- group by month
+- average talk time per agent
 
-average price per product
+---
 
-top 5 rows
+## ⚙️ How it works
 
-group by month
+file → pandas → DuckDB table  
+question → embeddings → FAISS search → rerank → prompt → LLM → SQL  
+SQL → DuckDB → JSON → table + charts
 
-average talk time per agent
+Natural language in.  
+SQL + charts out.
 
-🧠 System Architecture
+---
+
+## 🧠 Architecture
+
 Frontend (Vite + JS)
         ↓
 FastAPI Backend (REST API)
@@ -39,332 +49,120 @@ DuckDB execution
         ↓
 Tables + Charts
 
-🧩 Tech Stack
+---
+
+## 🧩 Tech Stack
+
 Backend
-
-FastAPI
-
-DuckDB
-
-Pandas
-
-FAISS
-
-Sentence Transformers
-
-Cross-Encoder reranker
-
-Local LLM (TinyLlama / Mistral)
-
-Frontend
-
-Vite
-
-Vanilla JavaScript
-
-Chart.js
+- FastAPI
+- DuckDB
+- Pandas
 
 AI / ML
+- Sentence Transformers (bi-encoder embeddings)
+- FAISS (vector similarity search)
+- Cross-encoder reranker
+- Local LLM (TinyLlama / Mistral)
+- Retrieval-Augmented Generation (RAG)
 
-Bi-encoder embeddings
+Frontend
+- Vite
+- Vanilla JavaScript
+- Chart.js
 
-Vector similarity search
+---
 
-Cross-encoder reranking
+## 🔥 Core Feature
 
-Prompt engineering
-
-Local inference (no cloud APIs)
-
-🔥 Core Feature
 Natural Language → SQL
 
 Example:
 
 Input
+average revenue by region
 
-average revenue by region last year
-
-
-Generated SQL
-
+Generated automatically
 SELECT region, AVG(revenue)
 FROM sales
 GROUP BY region;
 
+Executed instantly inside DuckDB.
 
-Executed automatically → results returned instantly.
+---
 
-🧠 Backend / AI Engine (Built From Scratch)
+## ✨ Features
 
-The backend contains a custom Retrieval-Augmented Generation (RAG) pipeline designed specifically for accurate SQL generation.
+- CSV + Excel upload
+- automatic schema detection
+- column normalization
+- safe SQL generation (SELECT only)
+- semantic schema retrieval
+- DuckDB OLAP queries (very fast)
+- automatic table rendering
+- automatic chart creation
+- fully local inference
+- zero cloud dependencies
 
-Retrieval Pipeline
-User question
-    ↓
-Embed query
-    ↓
-FAISS similarity search
-    ↓
-Cross-encoder reranking
-    ↓
-Inject schema into prompt
-    ↓
-Local LLM generates SQL
-    ↓
-DuckDB executes query
+---
 
-Components
-1️⃣ Embeddings (embed.py)
+## 📂 Project Structure
 
-SentenceTransformer bi-encoder
+app/        API + ingestion + endpoints  
+rag/        embeddings + retriever + SQL generator  
+frontend/   UI + charts  
+tests_rag/  model tests  
 
-normalized vectors
+---
 
-fast semantic similarity
+## 🚀 Run locally
 
-converts schema text → vectors
-
-2️⃣ Vector Index (index.py)
-
-FAISS IndexFlatIP
-
-cosine similarity search
-
-millisecond retrieval
-
-scalable to thousands of tables
-
-3️⃣ Reranker (reranker.py)
-
-cross-encoder/ms-marco model
-
-reranks top candidates
-
-improves precision
-
-reduces irrelevant tables
-
-4️⃣ Prompt Builder (prompt.py)
-
-injects only relevant schema
-
-prevents hallucinated tables/columns
-
-forces valid SQL only
-
-deterministic outputs
-
-5️⃣ Local LLM (llm.py)
-
-TinyLlama / Mistral
-
-runs fully offline
-
-no API cost
-
-deterministic generation
-
-strips explanations/markdown
-
-6️⃣ SQL Generator (sql_generator.py)
-
-High-level orchestrator:
-
-Retriever → Prompt → LLM → SQL
-
-
-Single call:
-
-sql = generator.generate(question)
-
-7️⃣ API Layer (api.py)
-
-FastAPI service exposes:
-
-Endpoints
-GET  /
-POST /generate
-
-Request
-{
-  "question": "average talk time per agent"
-}
-
-Response
-{
-  "sql": "SELECT agent_name, AVG(talk_time_sec) FROM calls GROUP BY agent_name;"
-}
-
-
-Frontend simply calls this endpoint.
-
-✨ Features
-
-✅ CSV + Excel upload
-✅ automatic schema detection
-✅ column normalization
-✅ natural language → SQL
-✅ semantic schema retrieval
-✅ safe SELECT-only execution
-✅ fast DuckDB queries
-✅ tables + charts
-✅ fully local inference
-✅ no cloud dependencies
-
-💡 Why These Choices
-FastAPI
-
-simple REST APIs
-
-async
-
-auto docs
-
-lightweight
-
-DuckDB
-
-embedded analytics database
-
-no server needed
-
-extremely fast aggregations
-
-perfect for local OLAP
-
-FAISS
-
-production-grade vector search
-
-very fast similarity matching
-
-RAG approach
-
-reduces hallucinations
-
-improves SQL accuracy
-
-scales to large schemas
-
-Local LLM
-
-privacy friendly
-
-works offline
-
-zero cost
-
-reproducible
-
-🧠 What I Learned Building This
-
-This project was focused heavily on backend + AI engineering:
-
-designing REST APIs
-
-building Retrieval-Augmented Generation systems
-
-embeddings + vector search
-
-FAISS indexing
-
-cross-encoder reranking
-
-prompt engineering
-
-LLM inference optimization
-
-SQL safety constraints
-
-working with analytical databases
-
-connecting backend + frontend cleanly
-
-building complete end-to-end AI products
-
-📂 Project Structure
-rag/
- ├── embed.py
- ├── index.py
- ├── reranker.py
- ├── retriever.py
- ├── prompt.py
- ├── llm.py
- ├── sql_generator.py
- ├── api.py
- └── requirements.txt
-
-frontend/
- ├── vite app
- └── charts + UI
-
-tests_rag/
- ├── test_embed.py
- ├── test_index.py
- ├── test_retriever.py
- ├── test_llm.py
- └── test_sqlgenerator.py
-
-⚙️ Run Locally
 Backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r rag/requirements.txt
-uvicorn rag.api:app --reload
 
+python -m venv venv
+venv\Scripts\activate      # Windows
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 
 Server:
-
 http://127.0.0.1:8000
 
 Frontend
+
 cd frontend
 npm install
 npm run dev
 
-🛡️ Safety Notes
+Open:
+http://localhost:5173
 
-SELECT queries only
+---
 
-no DROP/DELETE/UPDATE
+## 🛡 Safety
 
-local only
+- SELECT queries only
+- no DROP/DELETE/UPDATE
+- runs fully offline
+- intended for small/medium datasets
 
-designed for small/medium datasets
+---
 
-not production hardened
+## 🧠 Why I built this
 
-🚀 Future Improvements
+To practice building complete end-to-end AI systems that combine:
 
-streaming responses
+- backend APIs
+- analytical databases
+- vector search
+- LLM pipelines
+- frontend visualization
 
-query caching
+Instead of using cloud tools, everything runs locally for privacy, speed, and zero cost.
 
-better SQL validation
+---
 
-fine-tuned SQL model
+## 👨‍💻 Author
 
-schema auto-refresh
+Ayush Neupane , Aryan RajBhandari
+Computer Science + Economics  
+Building applied AI + data engineering systems
 
-Docker deployment
-
-multi-table joins optimization
-
-larger cross-encoder
-
-quantized LLM for faster CPU inference
-
-👨‍💻 Author
-
-Built as a full-stack + AI engineering learning project combining:
-
-Data Engineering
-
-LLM Systems
-
-APIs
-
-Databases
-
-Frontend Integration
