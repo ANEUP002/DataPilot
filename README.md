@@ -1,34 +1,36 @@
 # 🚀 DataPilot
 
-DataPilot is a lightweight, local-first analytics tool that lets you query spreadsheets using plain English.
+**DataPilot** is a lightweight, local-first analytics engine that lets you query spreadsheets using plain English.
 
-Upload a CSV or Excel file → ask a question → AI generates SQL → DuckDB executes it → results are shown as tables and charts.
+Upload a CSV or Excel → ask a question → AI generates SQL → DuckDB executes → results show as tables **and charts**.
 
 Think:
 
-ChatGPT + SQL + DuckDB + charts  
+**ChatGPT + SQL + DuckDB + Charts**  
 All running locally. No cloud. No external APIs. No heavy BI tools.
 
 ---
 
 ## ✨ What you can ask
 
-Examples:
+Try queries like:
 
-- total revenue by year
-- sum of sales by region
-- average price per product
-- top 5 rows
-- group by month
-- average talk time per agent
+- total revenue by year  
+- sum of sales by region  
+- average price per product  
+- top 5 rows  
+- group by month  
+- average talk time per agent  
 
 ---
 
 ## ⚙️ How it works
 
-file → pandas → DuckDB table  
-question → embeddings → FAISS search → rerank → prompt → LLM → SQL  
+```
+file → pandas → DuckDB table
+question → embeddings → FAISS → reranker → prompt → LLM → SQL
 SQL → DuckDB → JSON → table + charts
+```
 
 Natural language in.  
 SQL + charts out.
@@ -37,6 +39,7 @@ SQL + charts out.
 
 ## 🧠 Architecture
 
+```
 Frontend (Vite + JS)
         ↓
 FastAPI Backend (REST API)
@@ -48,24 +51,25 @@ Generated SQL
 DuckDB execution
         ↓
 Tables + Charts
+```
 
 ---
 
 ## 🧩 Tech Stack
 
-Backend
+### Backend
 - FastAPI
 - DuckDB
 - Pandas
 
-AI / ML
+### AI / ML
 - Sentence Transformers (bi-encoder embeddings)
 - FAISS (vector similarity search)
 - Cross-encoder reranker
 - Local LLM (TinyLlama / Mistral)
 - Retrieval-Augmented Generation (RAG)
 
-Frontend
+### Frontend
 - Vite
 - Vanilla JavaScript
 - Chart.js
@@ -74,17 +78,19 @@ Frontend
 
 ## 🔥 Core Feature
 
-Natural Language → SQL
+### Natural Language → SQL
 
-Example:
-
-Input
+**Input**
+```
 average revenue by region
+```
 
-Generated automatically
+**Generated automatically**
+```sql
 SELECT region, AVG(revenue)
 FROM sales
 GROUP BY region;
+```
 
 Executed instantly inside DuckDB.
 
@@ -107,89 +113,101 @@ Executed instantly inside DuckDB.
 
 ## 📂 Project Structure
 
-app/        API + ingestion + endpoints  
-rag/        embeddings + retriever + SQL generator  
-frontend/   UI + charts  
-tests_rag/  model tests  
+```
+app/        API + ingestion + endpoints
+rag/        embeddings + retriever + SQL generator
+frontend/   UI + charts
+tests_rag/  model tests
+```
 
 ---
-## 🚀 Run Locally
 
-### 1. Clone the repo
-git clone https://github.com/<your-username>/DataPilot.git
+# 🚀 Run Locally
+
+## 1. Clone the repo
+
+```bash
+git clone https://github.com/<not-aryan7>/DataPilot.git
 cd DataPilot
+```
 
+---
 
-### 2. Backend (FastAPI + DuckDB)
+## 2. Backend (FastAPI + DuckDB)
 
-Create virtual environment
-
+### Create virtual environment
+```bash
 python -m venv venv
+```
 
-Activate
+### Activate
 
-Windows
+```bash
+# Windows
 venv\Scripts\activate
 
-macOS / Linux
+# macOS / Linux
 source venv/bin/activate
+```
 
-Install dependencies
+### Install dependencies
+```bash
+pip install -r requirements.txt
+```
 
-• pip install -r requirements.txt
+### Start API
+```bash
+uvicorn app.main:app --reload
+```
 
-Start API
+Backend → http://127.0.0.1:8000  
+Docs → http://127.0.0.1:8000/docs
 
-• uvicorn app.main:app --reload
+---
 
-Backend running at:
-http://127.0.0.1:8000
+## 3. Frontend (Vite)
 
-Swagger docs:
-http://127.0.0.1:8000/docs
+Open a **new terminal**
 
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-### 3. Frontend (Vite)
+Frontend → http://localhost:5173
 
-Open new terminal
+---
 
-• cd frontend
-• npm install
-• npm run dev
+## 4. Use the app
 
-Frontend running at:
-http://localhost:5173
+1. Upload CSV or Excel  
+2. Ask questions in plain English  
+3. Get SQL + tables + charts instantly  
 
+---
 
-### 4. Use the app
+## 5. Stop everything
 
-• Open browser  
-• Upload CSV or Excel  
-• Ask questions in plain English  
-• Get SQL + tables + charts instantly
-
-
-### 5. Stop server
-
-CTRL + C (both terminals)
-deactivate   # exit virtual environment
-
-
+```bash
+CTRL + C
+deactivate
+```
 
 ---
 
 ## 🛡 Safety
 
-- SELECT queries only
-- no DROP/DELETE/UPDATE
-- runs fully offline
-- intended for small/medium datasets
+- SELECT queries only  
+- no DROP / DELETE / UPDATE  
+- runs fully offline  
+- designed for small/medium datasets  
 
 ---
 
-## 🧠 Why We built this
+## 🎯 Why we built this
 
-To practice building complete end-to-end AI systems that combine:
+To practice building complete **end-to-end AI systems** that combine:
 
 - backend APIs
 - analytical databases
@@ -197,13 +215,14 @@ To practice building complete end-to-end AI systems that combine:
 - LLM pipelines
 - frontend visualization
 
-Instead of using cloud tools, everything runs locally for privacy, speed, and zero cost.
+Instead of cloud tools, everything runs locally for privacy, speed, and zero cost.
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Authors
 
-Ayush Neupane , Aryan RajBhandari
+**Ayush Neupane**  
+**Aryan RajBhandari**  
+
 Computer Science + Economics  
-Building applied AI + data engineering systems
-
+Building applied AI & data engineering systems
